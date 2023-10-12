@@ -114,9 +114,9 @@ class BM25OkapiWithIDs(BM25WithIDs):
         :return:
         """
         score = np.zeros(self.corpus_size)  
-        doc_len = np.array(doc_len for doc_len in self.doc_len.values()) # Doc len is a dict doc_id: doc_len
+        doc_len = np.array([doc_len for doc_len in self.doc_len.values()]) # Doc len is a dict doc_id: doc_len
         for q in query:
-            q_freq = np.array([(doc.get(q) or 0) for doc in self.doc_freqs])
+            q_freq = np.array([(doc.get(q) or 0) for doc in self.doc_freqs.values()])
             thetad = self.k1 * (1 - self.b + self.b * doc_len / self.avgdl)
             doc_weights = (q_freq * (self.k1 + 1) / (q_freq + thetad))
             score += (self.idf.get(q) or 0) * doc_weights
