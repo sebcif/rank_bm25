@@ -10,7 +10,7 @@ import re
 corpus = [
     "Hello there good man!",
     "It is quite windy in London",
-    "How is the weather today?"
+    "How is the weather today?",
 ]
 tokenized_corpus = [doc.split(" ") for doc in corpus]
 
@@ -20,10 +20,12 @@ algs = [
     BM25Plus(tokenized_corpus)
 ]
 
-corpus_id = [(f"id{i}", text) for i, text in enumerate(corpus)]
+corpus_id = [(text, f"id{i}") for i, text in enumerate(corpus)]
 tokenized_corpus_id = [(t[0].split(" "), t[1]) for t in corpus_id]
 
 algs_id = [BM25OkapiWithIDs(tokenized_corpus_id)]
+
+query = "Hello"
 
 def test_corpus_loading():
     for alg in algs:
@@ -38,7 +40,6 @@ def test_corpus_loading():
 def tokenizer(doc):
     return doc.split(" ")
 
-
 def test_tokenizer():
     bm25 = BM25Okapi(corpus, tokenizer=tokenizer)
     assert bm25.corpus_size == 3
@@ -48,3 +49,9 @@ def test_tokenizer():
     assert bm25_ids.corpus_size == 3
     assert bm25_ids.avgdl == 5
     assert list(bm25_ids.doc_len.values()) == [4, 6, 5]
+
+def test_search_equivalence():
+    score = algs[0].get_scores(query)
+    score_id = algs_id[0].get_scores(query)
+    only_score = [t[1] for t in score_id]
+    assert (score == only_score).all()
